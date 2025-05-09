@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mikopbx
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: mikopbx
+  template:
+    metadata:
+      labels:
+        app: mikopbx
+    spec:
+      hostNetwork: true
+      containers:
+        - name: mikopbx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/sbin/docker-entrypoint"]
+          tty: true
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          env:
+            - name: ID_WWW_USER
+              value: {{ .Values.wwwUser.uid | quote }}
+            - name: ID_WWW_GROUP
+              value: {{ .Values.wwwUser.gid | quote }}
+            - name: PBX_NAME
+              value: {{ .Values.pbxConfig.name }}
+            - name: SSH_PORT
+              value: {{ .Values.pbxConfig.sshPort | quote }}
+            - name: WEB_PORT
+              value: {{ .Values.pbxConfig.webPort | quote }}
+            - name: WEB_HTTPS_PORT
+              value: {{ .Values.pbxConfig.httpsPort | quote }}
+          volumeMounts:
+            - name: cf
+              mountPath: /cf
+            - name: storage
+              mountPath: /storage
+      volumes:
+        - name: cf
+          persistentVolumeClaim:
+            claimName: mikopbx-cf-pvc
+        - name: storage
+          persistentVolumeClaim:
+            claimName: mikopbx-storage-pvc

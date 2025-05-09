@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  repository: eggplanter/mikopbx-arm64
+  tag: 2024.2.28-dev
+  pullPolicy: IfNotPresent
+
+wwwUser:
+  uid: 1001
+  gid: 1001
+
+pbxConfig:
+  name: "MikoPBX-in-K8s"
+  sshPort: 23
+  webPort: 8080
+  httpsPort: 8443
+
+storage:
+  cf:
+    path: /var/spool/mikopbx/cf
+    size: 1Gi
+  data:
+    path: /var/spool/mikopbx/storage
+    size: 10Gi
+
+service:
+  type: NodePort
+  nodePorts:
+    web: 30080
+    https: 30443
+    ssh: 30023

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mikopbx-cf-pv
+spec:
+  capacity:
+    storage: {{ .Values.storage.cf.size }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.storage.cf.path }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mikopbx-storage-pv
+spec:
+  capacity:
+    storage: {{ .Values.storage.data.size }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.storage.data.path }}
