@@ -1,0 +1,12 @@
+# pi02-pi04: k3s agents. They join pi01 over the LAN (Tailscale IPs can change).
+# /etc/rancher/k3s/token is written by `mise run cluster:token` on the Mac.
+
+[env]
+K3S_ROLE = "agent"
+
+[bootstrap.files."/etc/rancher/k3s/config.yaml"]
+content = """
+server: https://192.168.100.9:6443
+token-file: /etc/rancher/k3s/token
+flannel-iface: eth0
+"""

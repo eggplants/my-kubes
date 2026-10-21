@@ -1,0 +1,19 @@
+# Shared by every node (Raspberry Pi 4, Debian 12 bookworm, arm64).
+# The role comes from mise_env in ../mise.toml: mise.server.toml (pi01) or mise.agent.toml (pi02-04).
+
+[env]
+# every node runs the same k3s; changing this upgrades them on the next run (server first)
+K3S_VERSION = "v1.32.4+k3s1"
+
+[bootstrap.packages]
+"apt:ca-certificates" = "latest"
+"apt:curl" = "latest"
+"apt:avahi-daemon" = "latest"
+
+[bootstrap.services.avahi-daemon]
+state = "running"
+enabled = true
+
+[tasks.bootstrap]
+description = "Install k3s for this node's role and apply /etc/rancher/k3s/config.yaml"
+run = "bash k3s.sh"

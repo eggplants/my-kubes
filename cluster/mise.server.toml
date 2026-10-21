@@ -1,0 +1,9 @@
+# pi01: k3s server (control plane). Runs MikoPBX.
+
+[env]
+K3S_ROLE = "server"
+
+[bootstrap.files."/etc/rancher/k3s/config.yaml"]
+content = """
+flannel-iface: eth0
+"""

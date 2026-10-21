@@ -4,6 +4,9 @@ metadata:
   name: mikopbx
 spec:
   replicas: {{ .Values.replicaCount }}
+  # hostPorts and the RWO volumes cannot be shared with a second pod during a rollout
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: mikopbx
@@ -12,14 +15,25 @@ spec:
       labels:
         app: mikopbx
     spec:
-      hostNetwork: true
       containers:
         - name: mikopbx
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/sbin/docker-entrypoint"]
           tty: true
+          ports:
+            - { name: web, containerPort: {{ .Values.pbxConfig.webPort }}, hostPort: {{ .Values.pbxConfig.webPort }}, protocol: TCP }
+            - { name: https, containerPort: {{ .Values.pbxConfig.httpsPort }}, hostPort: {{ .Values.pbxConfig.httpsPort }}, protocol: TCP }
+            - { name: ssh, containerPort: {{ .Values.pbxConfig.sshPort }}, hostPort: {{ .Values.pbxConfig.sshPort }}, protocol: TCP }
+            - { name: sip-udp, containerPort: {{ .Values.sip.port }}, hostPort: {{ .Values.sip.port }}, protocol: UDP }
+            - { name: sip-tcp, containerPort: {{ .Values.sip.port }}, hostPort: {{ .Values.sip.port }}, protocol: TCP }
+            - { name: sip-tls, containerPort: {{ .Values.sip.tlsPort }}, hostPort: {{ .Values.sip.tlsPort }}, protocol: TCP }
+            - { name: iax, containerPort: {{ .Values.iaxPort }}, hostPort: {{ .Values.iaxPort }}, protocol: UDP }
+            {{- range $p := untilStep (int .Values.rtp.start) (int (add1 .Values.rtp.end)) 1 }}
+            - { containerPort: {{ $p }}, hostPort: {{ $p }}, protocol: UDP }
+            {{- end }}
           securityContext:
+            # MikoPBX's firewall; it now only changes the pod's own network namespace
             capabilities:
               add: ["NET_ADMIN"]
           env:

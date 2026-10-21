@@ -15,6 +15,16 @@ pbxConfig:
   webPort: 8080
   httpsPort: 8443
 
+# Published on the node with hostPort (the pod no longer uses the host network, so
+# MikoPBX's firewall stays inside the pod). Keep these equal to MikoPBX's settings.
+sip:
+  port: 5060
+  tlsPort: 5061
+iaxPort: 4569
+rtp:
+  start: 10000
+  end: 10800
+
 storage:
   cf:
     path: /var/spool/mikopbx/cf

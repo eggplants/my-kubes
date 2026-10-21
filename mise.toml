@@ -1,0 +1,67 @@
+# Run on this Mac. `mise bootstrap remote` sends cluster/ to each Pi and runs `mise bootstrap` there.
+# Each host's mise_env picks cluster/mise.server.toml or cluster/mise.agent.toml.
+#
+#   mise bootstrap remote --all --dry-run
+#   mise bootstrap remote --all
+
+[vars]
+# pi01 is given by IP: while the MikoPBX firewall is on, it drops mDNS (pi01.local)
+server = "eggplants@192.168.100.9"
+agents = "eggplants@pi02.local eggplants@pi03.local eggplants@pi04.local"
+
+[bootstrap.remote]
+source = "cluster"
+
+[bootstrap.remote.hosts.pi01]
+host = "192.168.100.9"
+user = "eggplants"
+tags = ["server"]
+mise_env = ["server"]
+
+[bootstrap.remote.hosts.pi02]
+host = "pi02.local"
+user = "eggplants"
+tags = ["agent"]
+mise_env = ["agent"]
+
+[bootstrap.remote.hosts.pi03]
+host = "pi03.local"
+user = "eggplants"
+tags = ["agent"]
+mise_env = ["agent"]
+
+[bootstrap.remote.hosts.pi04]
+host = "pi04.local"
+user = "eggplants"
+tags = ["agent"]
+mise_env = ["agent"]
+
+[tasks."cluster:status"]
+description = "Show the cluster's nodes"
+run = "ssh {{ vars.server }} sudo k3s kubectl get nodes -o wide"
+
+[tasks."cluster:token"]
+description = "Copy pi01's join token to each agent's /etc/rancher/k3s/token (never printed or stored here)"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+token="$(ssh {{ vars.server }} sudo cat /var/lib/rancher/k3s/server/node-token)"
+for h in {{ vars.agents }}; do
+  printf '%s\n' "$token" | ssh "$h" 'sudo install -D -m 600 /dev/stdin /etc/rancher/k3s/token'
+  echo "cluster:token: $h"
+done
+'''
+
+[tasks."cluster:reset"]
+description = "Uninstall k3s from one agent and remove its node from the cluster (e.g. mise run cluster:reset pi02)"
+usage = 'arg "<host>" help="pi02, pi03 or pi04"'
+confirm = "Uninstall k3s from {{ usage.host }} (its data in /var/lib/rancher is deleted)?"
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+h="{{ usage.host }}"
+[[ "$h" =~ ^pi0[234]$ ]] || { echo "cluster:reset: only agents (pi02, pi03, pi04) can be reset" >&2; exit 1; }
+ssh "eggplants@$h.local" 'for s in k3s-agent-uninstall.sh k3s-uninstall.sh; do [ ! -x /usr/local/bin/$s ] || sudo /usr/local/bin/$s; done'
+# a node object left behind keeps the old node password, and the rejoin is refused
+ssh {{ vars.server }} sudo k3s kubectl delete node "$h" --ignore-not-found
+'''
