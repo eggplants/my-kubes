@@ -15,6 +15,7 @@ pbxConfig:
   webPort: 8080
   httpsPort: 8443
   sipRealm: asterisk
+  allowGuestCalls: false
 
 storage:
   cf:

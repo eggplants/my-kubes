@@ -39,6 +39,8 @@ spec:
               value: {{ .Values.pbxConfig.httpsPort | quote }}
             - name: SIP_REALM
               value: {{ .Values.pbxConfig.sipRealm | quote }}
+            - name: PBX_ALLOW_GUEST_CALLS
+              value: {{ ternary "1" "0" .Values.pbxConfig.allowGuestCalls | quote }}
           volumeMounts:
             - name: cf
               mountPath: /cf
