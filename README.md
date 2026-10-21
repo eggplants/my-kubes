@@ -34,9 +34,15 @@ mise bootstrap remote pi02
 
 ## MikoPBX dialplan applications
 
-`cluster/dialplan/<extension>.conf` holds each dialplan application.
+`cluster/dialplan/<extension>.conf` holds each [dialplan application](https://docs.asterisk.org/Configuration/Dialplan/).
 
-`; name:`, `; description:`, `; hint:` and `; type:` header lines, then its logic.
+```php
+; name: welcome
+; description: it responds to a call
+1,Answer()
+...
+n,Hangup()
+```
 
 ```bash
 mise bootstrap remote pi01
@@ -44,4 +50,4 @@ mise bootstrap remote pi01
 
 ## Notes
 
-- `cgroup_memory=1 cgroup_enable=memory` must be in `/boot/firmware/cmdline.txt`
+`cgroup_memory=1 cgroup_enable=memory` must be in `/boot/firmware/cmdline.txt`.
