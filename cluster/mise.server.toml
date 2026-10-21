@@ -3,7 +3,14 @@
 [env]
 K3S_ROLE = "server"
 
+[bootstrap.packages]
+"apt:jq" = "latest"
+
 [bootstrap.files."/etc/rancher/k3s/config.yaml"]
 content = """
 flannel-iface: eth0
 """
+
+[tasks.bootstrap]
+description = "Install k3s as the server, then sync MikoPBX's dialplan applications from dialplan/"
+run = ["bash k3s.sh", "bash dialplan.sh"]

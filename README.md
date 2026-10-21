@@ -32,6 +32,16 @@ mise run cluster:token
 mise bootstrap remote pi02
 ```
 
+## MikoPBX dialplan applications
+
+`cluster/dialplan/<extension>.conf` holds each dialplan application.
+
+`; name:`, `; description:`, `; hint:` and `; type:` header lines, then its logic.
+
+```bash
+mise bootstrap remote pi01
+```
+
 ## Notes
 
 - `cgroup_memory=1 cgroup_enable=memory` must be in `/boot/firmware/cmdline.txt`
