@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/tkytel/mikopbx-docker
-  tag: 2026.3.40@sha256:bb5740ae275a786870b0e348dec0d76797d86b0ad5e1375466e3f4090a2b2c27
+  tag: 2026.5.6@sha256:325449da3def20f7d954ec30dc1113d5ae9de947b02dca033f5866cb0322a5dd
   pullPolicy: IfNotPresent
 
 wwwUser:
