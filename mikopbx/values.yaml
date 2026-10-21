@@ -19,10 +19,8 @@ pbxConfig:
 
 storage:
   cf:
-    path: /var/spool/mikopbx/cf
     size: 1Gi
   data:
-    path: /var/spool/mikopbx/storage
     size: 10Gi
 
 service:
