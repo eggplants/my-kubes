@@ -16,7 +16,7 @@ After you install, see `https://<host>:8080`.
 helm upgrade mikopbx . --reset-then-reuse-values
 ```
 
-The pod uses the pod network, not the host network, and publishes web, SSH, SIP, IAX and RTP (`rtp.start`-`rtp.end`) with `hostPort` on the node. Asterisk sees itself at a pod IP, so set the node's address (e.g. `192.168.100.9`) as the external address in MikoPBX's network settings, or calls connect without audio. Keep `sip`, `iaxPort` and `rtp` in `values.yaml` equal to MikoPBX's settings.
+The pod uses the host network, so Asterisk advertises the node's own LAN and Tailscale addresses in SDP. It runs without `NET_ADMIN`: MikoPBX's firewall and fail2ban cannot change the node's iptables, so the firewall settings in the web UI have no effect. SIP is meant to be reached only over the tailnet.
 
 ## Uninstall
 
