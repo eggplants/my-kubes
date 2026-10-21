@@ -37,6 +37,8 @@ spec:
               value: {{ .Values.pbxConfig.webPort | quote }}
             - name: WEB_HTTPS_PORT
               value: {{ .Values.pbxConfig.httpsPort | quote }}
+            - name: SIP_REALM
+              value: {{ .Values.pbxConfig.sipRealm | quote }}
           volumeMounts:
             - name: cf
               mountPath: /cf
