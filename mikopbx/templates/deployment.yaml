@@ -23,7 +23,6 @@ spec:
         - name: mikopbx
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["/sbin/docker-entrypoint"]
           tty: true
           env:
             - name: ID_WWW_USER
