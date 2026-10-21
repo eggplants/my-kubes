@@ -9,6 +9,7 @@ K3S_VERSION = "v1.32.4+k3s1"
 "apt:ca-certificates" = "latest"
 "apt:curl" = "latest"
 "apt:avahi-daemon" = "latest"
+"apt:conntrack" = "latest"
 
 [bootstrap.services.avahi-daemon]
 state = "running"
