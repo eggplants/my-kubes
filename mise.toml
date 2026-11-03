@@ -5,33 +5,33 @@
 #   mise bootstrap remote --all
 
 [vars]
-# pi01 is given by IP: while the MikoPBX firewall is on, it drops mDNS (pi01.local)
-server = "eggplants@192.168.100.9"
-agents = "eggplants@pi02.local eggplants@pi03.local eggplants@pi04.local"
+# Names come from RTX830 static DNS (home.arpa), not mDNS: the MikoPBX firewall on pi01 drops mDNS
+server = "eggplants@pi01.home.arpa"
+agents = "eggplants@pi02.home.arpa eggplants@pi03.home.arpa eggplants@pi04.home.arpa"
 
 [bootstrap.remote]
 source = "cluster"
 
 [bootstrap.remote.hosts.pi01]
-host = "192.168.100.9"
+host = "pi01.home.arpa"
 user = "eggplants"
 tags = ["server"]
 mise_env = ["server"]
 
 [bootstrap.remote.hosts.pi02]
-host = "pi02.local"
+host = "pi02.home.arpa"
 user = "eggplants"
 tags = ["agent"]
 mise_env = ["agent"]
 
 [bootstrap.remote.hosts.pi03]
-host = "pi03.local"
+host = "pi03.home.arpa"
 user = "eggplants"
 tags = ["agent"]
 mise_env = ["agent"]
 
 [bootstrap.remote.hosts.pi04]
-host = "pi04.local"
+host = "pi04.home.arpa"
 user = "eggplants"
 tags = ["agent"]
 mise_env = ["agent"]
@@ -61,7 +61,7 @@ run = '''
 set -euo pipefail
 h="{{ usage.host }}"
 [[ "$h" =~ ^pi0[234]$ ]] || { echo "cluster:reset: only agents (pi02, pi03, pi04) can be reset" >&2; exit 1; }
-ssh "eggplants@$h.local" 'for s in k3s-agent-uninstall.sh k3s-uninstall.sh; do [ ! -x /usr/local/bin/$s ] || sudo /usr/local/bin/$s; done'
+ssh "eggplants@$h.home.arpa" 'for s in k3s-agent-uninstall.sh k3s-uninstall.sh; do [ ! -x /usr/local/bin/$s ] || sudo /usr/local/bin/$s; done'
 # a node object left behind keeps the old node password, and the rejoin is refused
 ssh {{ vars.server }} sudo k3s kubectl delete node "$h" --ignore-not-found
 '''
