@@ -1,0 +1,25 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argocd
+  namespace: kube-system
+spec:
+  repo: https://argoproj.github.io/argo-helm
+  chart: argo-cd
+  version: 10.12.1
+  targetNamespace: argocd
+  createNamespace: true
+  valuesContent: |-
+    global:
+      # pi01 already runs the control plane and MikoPBX
+      affinity:
+        nodeAffinity:
+          matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: DoesNotExist
+    dex:
+      enabled: false
+    notifications:
+      enabled: false
+    applicationSet:
+      replicas: 0
