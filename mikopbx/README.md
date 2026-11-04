@@ -1,6 +1,6 @@
 # MikoPBX on k8s
 
-After you install, see `http://<host>:8080` (HTTPS: `https://<host>:8443`).
+After you install, see `https://pbx.home.arpa`, a static DNS name on the router that points to the node. `http://<host>:8080` and `https://<host>:8443` stay open, as the pod uses the host network.
 
 ![top](https://github.com/user-attachments/assets/f9e31955-57eb-4eac-8159-7abb16e1d3a9)
 

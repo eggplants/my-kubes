@@ -23,6 +23,9 @@ storage:
   data:
     size: 10Gi
 
+ingress:
+  host: pbx.home.arpa
+
 service:
   type: NodePort
   nodePorts:

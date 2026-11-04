@@ -7,7 +7,7 @@
 | pi03 | pi03.home.arpa (192.168.100.5) | k3s agent |
 | pi04 | pi04.home.arpa (192.168.100.6) | k3s agent |
 
-- MikoPBX: <http://pi01.home.arpa:8080>
+- MikoPBX: <https://pbx.home.arpa>
 - ArgoCD: <https://pi01.home.arpa>
 
 ## Apply
