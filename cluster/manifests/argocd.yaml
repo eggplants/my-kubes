@@ -23,3 +23,9 @@ spec:
       enabled: false
     applicationSet:
       replicas: 0
+    server:
+      service:
+        type: NodePort
+        # the chart's defaults, 30080 and 30443, are MikoPBX's
+        nodePortHttp: 30082
+        nodePortHttps: 30081

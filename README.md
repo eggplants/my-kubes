@@ -7,6 +7,9 @@
 | pi03 | pi03.home.arpa (192.168.100.5) | k3s agent |
 | pi04 | pi04.home.arpa (192.168.100.6) | k3s agent |
 
+- MikoPBX: <http://pi01.home.arpa:8080>
+- ArgoCD: <http://pi01.home.arpa:30081>
+
 ## Apply
 
 ```bash
@@ -44,14 +47,13 @@ mise bootstrap remote pi01
 
 ## Argo CD
 
-[Argo CD](https://argo-cd.readthedocs.io/) keeps [MikoPBX](./mikopbx) in sync with `master`. It is not exposed outside the cluster; to open the UI at `https://localhost:18080` as `admin`:
+Get initial password with:
 
 ```bash
-# initial password
 ssh eggplants@pi01.home.arpa "sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}'" | base64 -d
-
-ssh -L 18080:localhost:18080 eggplants@pi01.home.arpa sudo k3s kubectl -n argocd port-forward svc/argocd-server 18080:443
 ```
+
+Then, log in as `admin` at <http://pi01.home.arpa:30081> and change the password.
 
 ## MikoPBX dialplan applications
 
