@@ -15,3 +15,7 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: default
+  syncPolicy:
+    # no prune: something dropped from the chart stays until it is removed by hand
+    automated:
+      selfHeal: true

@@ -42,6 +42,17 @@ To move to the next minor, change the channel in `cluster/manifests/system-upgra
 mise bootstrap remote pi01
 ```
 
+## Argo CD
+
+[Argo CD](https://argo-cd.readthedocs.io/) keeps [MikoPBX](./mikopbx) in sync with `master`. It is not exposed outside the cluster; to open the UI at `https://localhost:18080` as `admin`:
+
+```bash
+# initial password
+ssh eggplants@pi01.home.arpa "sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}'" | base64 -d
+
+ssh -L 18080:localhost:18080 eggplants@pi01.home.arpa sudo k3s kubectl -n argocd port-forward svc/argocd-server 18080:443
+```
+
 ## MikoPBX dialplan applications
 
 `cluster/dialplan/<extension>.conf` holds each [dialplan application](https://docs.asterisk.org/Configuration/Dialplan/).
