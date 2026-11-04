@@ -47,19 +47,14 @@ mise bootstrap remote pi01
 
 ## Argo CD
 
-Get initial password with:
-
+At first:
 ```bash
+mise run cluster:ca > home-ca.crt
+mise run cluster:discord-webhook
 mise run cluster:argocd-password
 ```
 
 Then, log in as `admin` at <https://pi01.home.arpa> and change the password.
-
-Its certificate comes from [cert-manager](https://cert-manager.io/)'s private CA. Trust its root on each device:
-
-```bash
-mise run cluster:ca > home-ca.crt
-```
 
 ## MikoPBX dialplan applications
 

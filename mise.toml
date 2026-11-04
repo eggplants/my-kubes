@@ -59,6 +59,19 @@ set -euo pipefail
 ssh {{ vars.server }} "sudo k3s kubectl -n cert-manager get secret home-ca -o jsonpath='{.data.ca\.crt}'" | base64 -d
 '''
 
+[tasks."cluster:discord-webhook"]
+description = "Store the Discord webhook for Argo CD's notifications (asked for here, never printed or stored in this repository)"
+quiet = true
+raw = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+read -rsp 'Discord webhook URL: ' url </dev/tty
+echo
+[[ "$url" == https://discord.com/api/webhooks/* ]] || { echo "cluster:discord-webhook: not a Discord webhook URL" >&2; exit 1; }
+printf '%s' "$url" | ssh {{ vars.server }} 'sudo k3s kubectl -n argocd create secret generic argocd-notifications-secret --from-file=discord-webhook-url=/dev/stdin --dry-run=client -o yaml | sudo k3s kubectl apply -f -'
+'''
+
 [tasks."cluster:token"]
 description = "Copy pi01's join token to each agent's /etc/rancher/k3s/token (never printed or stored here)"
 run = '''
