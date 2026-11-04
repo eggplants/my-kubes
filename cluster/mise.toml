@@ -3,7 +3,7 @@
 
 [env]
 # every node runs the same k3s; changing this upgrades them on the next run (server first)
-K3S_VERSION = "v1.32.4+k3s1"
+K3S_VERSION = "v1.37.2+k3s1"
 
 [bootstrap.packages]
 "apt:ca-certificates" = "latest"
