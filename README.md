@@ -8,7 +8,7 @@
 | pi04 | pi04.home.arpa (192.168.100.6) | k3s agent |
 
 - MikoPBX: <http://pi01.home.arpa:8080>
-- ArgoCD: <http://pi01.home.arpa:30081>
+- ArgoCD: <https://pi01.home.arpa>
 
 ## Apply
 
@@ -50,10 +50,16 @@ mise bootstrap remote pi01
 Get initial password with:
 
 ```bash
-ssh eggplants@pi01.home.arpa "sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}'" | base64 -d
+mise run cluster:argocd-password
 ```
 
-Then, log in as `admin` at <http://pi01.home.arpa:30081> and change the password.
+Then, log in as `admin` at <https://pi01.home.arpa> and change the password.
+
+Its certificate comes from [cert-manager](https://cert-manager.io/)'s private CA. Trust its root on each device:
+
+```bash
+mise run cluster:ca > home-ca.crt
+```
 
 ## MikoPBX dialplan applications
 

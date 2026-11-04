@@ -35,6 +35,18 @@ owner = "root"
 group = "root"
 mode = "0600"
 
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/cert-manager.yaml"]
+source = "./manifests/cert-manager.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/cert-manager-issuers.yaml"]
+source = "./manifests/cert-manager-issuers.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
 [bootstrap.files."/var/lib/rancher/k3s/server/manifests/argocd.yaml"]
 source = "./manifests/argocd.yaml"
 owner = "root"

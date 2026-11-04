@@ -40,6 +40,25 @@ mise_env = ["agent"]
 description = "Show the cluster's nodes"
 run = "ssh {{ vars.server }} sudo k3s kubectl get nodes -o wide"
 
+[tasks."cluster:argocd-password"]
+description = "Print Argo CD's initial admin password, while argocd-initial-admin-secret still exists"
+quiet = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+ssh {{ vars.server }} "sudo k3s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}'" | base64 -d
+echo
+'''
+
+[tasks."cluster:ca"]
+description = "Print the root certificate for each device to trust (e.g. mise run cluster:ca > home-ca.crt)"
+quiet = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+ssh {{ vars.server }} "sudo k3s kubectl -n cert-manager get secret home-ca -o jsonpath='{.data.ca\.crt}'" | base64 -d
+'''
+
 [tasks."cluster:token"]
 description = "Copy pi01's join token to each agent's /etc/rancher/k3s/token (never printed or stored here)"
 run = '''

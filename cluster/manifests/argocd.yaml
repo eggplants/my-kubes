@@ -11,6 +11,7 @@ spec:
   createNamespace: true
   valuesContent: |-
     global:
+      domain: pi01.home.arpa
       # pi01 already runs the control plane and MikoPBX
       affinity:
         nodeAffinity:
@@ -23,9 +24,16 @@ spec:
       enabled: false
     applicationSet:
       replicas: 0
+    configs:
+      params:
+        # Traefik terminates TLS
+        server.insecure: true
     server:
-      service:
-        type: NodePort
-        # the chart's defaults, 30080 and 30443, are MikoPBX's
-        nodePortHttp: 30082
-        nodePortHttps: 30081
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: home-ca
+          # HTTPS only: with server.insecure, the web entrypoint would serve the UI in plain HTTP
+          traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        tls: true
