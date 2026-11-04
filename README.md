@@ -2,7 +2,7 @@
 
 | Host | Address | Role |
 |---|---|---|
-| pi01 | pi01.home.arpa (192.168.100.9) | k3s server (runs [MikoPBX](./mikopbx)) |
+| pi01 | pi01.home.arpa (192.168.100.9) | k3s server |
 | pi02 | pi02.home.arpa (192.168.100.4) | k3s agent |
 | pi03 | pi03.home.arpa (192.168.100.5) | k3s agent |
 | pi04 | pi04.home.arpa (192.168.100.6) | k3s agent |
