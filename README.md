@@ -32,6 +32,16 @@ mise run cluster:token
 mise bootstrap remote pi02
 ```
 
+## Upgrade k3s
+
+The patch version is automatically updated with [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) and [k3s-upgrade](https://github.com/k3s-io/k3s-upgrade) on Sundays from 03:00 to 05:00 JST. 
+
+To move to the next minor, change the channel in `cluster/manifests/system-upgrade-plans.yaml` and `K3S_VERSION` in `cluster/mise.toml`, then:
+
+```bash
+mise bootstrap remote pi01
+```
+
 ## MikoPBX dialplan applications
 
 `cluster/dialplan/<extension>.conf` holds each [dialplan application](https://docs.asterisk.org/Configuration/Dialplan/).

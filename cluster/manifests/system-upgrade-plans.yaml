@@ -1,0 +1,55 @@
+# Keeps every node on the newest k3s patch of one minor. To move to the next minor, see ../../README.md.
+# Cordon only, never drain: MikoPBX's volumes are pinned to pi01, so evicting it would stop the PBX.
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: server-plan
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: In
+        values:
+          - "true"
+  serviceAccountName: system-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+  channel: https://update.k3s.io/v1-release/channels/v1.37
+  window:
+    days:
+      - sunday
+    startTime: "03:00:00"
+    endTime: "05:00:00"
+    timeZone: Asia/Tokyo
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: agent-plan
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  cordon: true
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist
+  # waits until server-plan has upgraded pi01
+  prepare:
+    image: rancher/k3s-upgrade
+    args:
+      - prepare
+      - server-plan
+  serviceAccountName: system-upgrade
+  upgrade:
+    image: rancher/k3s-upgrade
+  channel: https://update.k3s.io/v1-release/channels/v1.37
+  window:
+    days:
+      - sunday
+    startTime: "03:00:00"
+    endTime: "05:00:00"
+    timeZone: Asia/Tokyo

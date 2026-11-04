@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # The bootstrap task: runs on every `mise bootstrap`, so it must be safe to repeat.
-# Installs k3s $K3S_VERSION as $K3S_ROLE, and restarts it after [bootstrap.files] changes config.yaml.
+# Installs k3s $K3S_VERSION as $K3S_ROLE on a new node, and restarts it after [bootstrap.files] changes config.yaml.
+# A running node is left at its version: manifests/system-upgrade-plans.yaml upgrades it, and installing here would downgrade it.
 set -euo pipefail
 die() {
   echo "k3s.sh: $*" >&2
@@ -24,9 +25,8 @@ done
 [[ "$K3S_ROLE" == server || -s /etc/rancher/k3s/token ]] ||
   die "/etc/rancher/k3s/token is missing; run 'mise run cluster:token' on the Mac first"
 
-current="$(k3s --version 2>/dev/null | awk 'NR == 1 { print $3 }')" || true
-if [[ ! -e "/etc/systemd/system/$unit.service" || "$current" != "$K3S_VERSION" ]]; then
-  echo "k3s.sh: installing k3s $K3S_VERSION ($K3S_ROLE, was ${current:-none})"
+if [[ ! -e "/etc/systemd/system/$unit.service" ]]; then
+  echo "k3s.sh: installing k3s $K3S_VERSION ($K3S_ROLE)"
   curl -sfL https://get.k3s.io | sudo env INSTALL_K3S_VERSION="$K3S_VERSION" INSTALL_K3S_EXEC="$K3S_ROLE" sh -
   sudo touch "$stamp"
 elif [[ "$config" -nt "$stamp" ]]; then

@@ -11,6 +11,30 @@ content = """
 flannel-iface: eth0
 """
 
+# k3s applies whatever is in this directory. These run before k3s.sh, so a new server needs the directory made here.
+[bootstrap.directories."/var/lib/rancher/k3s/server/manifests"]
+owner = "root"
+group = "root"
+mode = "0700"
+
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/system-upgrade-controller.yaml"]
+source = "./manifests/system-upgrade-controller.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/system-upgrade-crd.yaml"]
+source = "./manifests/system-upgrade-crd.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/system-upgrade-plans.yaml"]
+source = "./manifests/system-upgrade-plans.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
 [tasks.bootstrap]
 description = "Install k3s as the server, then sync MikoPBX's dialplan applications from dialplan/"
 run = ["bash k3s.sh", "bash dialplan.sh"]

@@ -2,7 +2,7 @@
 # The role comes from mise_env in ../mise.toml: mise.server.toml (pi01) or mise.agent.toml (pi02-04).
 
 [env]
-# every node runs the same k3s; changing this upgrades them on the next run (server first)
+# what a new node is installed with; manifests/system-upgrade-plans.yaml upgrades the running ones
 K3S_VERSION = "v1.37.2+k3s1"
 
 [bootstrap.packages]
