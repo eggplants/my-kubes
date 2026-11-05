@@ -8,6 +8,7 @@
 # Names come from RTX830 static DNS (home.arpa), not mDNS: the MikoPBX firewall on pi01 drops mDNS
 server = "eggplants@pi01.home.arpa"
 agents = "eggplants@pi02.home.arpa eggplants@pi03.home.arpa eggplants@pi04.home.arpa"
+router = "192.168.100.1"
 
 [bootstrap.remote]
 source = "cluster"
@@ -70,6 +71,52 @@ read -rsp 'Discord webhook URL: ' url </dev/tty
 echo
 [[ "$url" == https://discord.com/api/webhooks/* ]] || { echo "cluster:discord-webhook: not a Discord webhook URL" >&2; exit 1; }
 printf '%s' "$url" | ssh {{ vars.server }} 'sudo k3s kubectl -n argocd create secret generic argocd-notifications-secret --from-file=discord-webhook-url=/dev/stdin --dry-run=client -o yaml | sudo k3s kubectl apply -f -'
+'''
+
+[tasks."cluster:adguard-setup"]
+description = "Create AdGuard Home's admin on the origin, once (asked for here, never printed or stored in this repository)"
+quiet = true
+raw = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+read -rsp 'AdGuard Home password for admin: ' password </dev/tty
+echo
+# the script and the password both go over stdin, which keeps the password out of pi01's process list
+{ printf 'password=%q\n' "$password"; cat <<'EOF'; } | ssh {{ vars.server }} bash -s
+set -euo pipefail
+k() { sudo k3s kubectl -n adguard "$@"; }
+if k get secret adguard-home-credentials >/dev/null 2>&1; then
+  echo "cluster:adguard-setup: already set up; see adguard-home/README.md to rebuild the origin" >&2
+  exit 1
+fi
+k wait --for=condition=Ready pod/adguard-home-0 --timeout=5m >/dev/null
+
+printf '%s' "$password" |
+  jq -Rs '{username: "admin", password: ., web: {ip: "0.0.0.0", port: 3000}, dns: {ip: "0.0.0.0", port: 53}}' |
+  k exec -i adguard-home-0 -- wget -qO /dev/null --header=Content-Type:application/json --post-file=/dev/stdin http://127.0.0.1:3000/control/install/configure
+
+printf '%s' "$password" |
+  k create secret generic adguard-home-credentials --from-literal=username=admin --from-file=password=/dev/stdin --dry-run=client -o yaml |
+  k apply -f - >/dev/null
+
+# the first line is for read, and the rest stays on stdin for wget
+dns_config() {
+  printf 'admin:%s' "$password" | base64 -w0
+  echo
+  jq -n --arg router "{{ vars.router }}" '{upstream_dns: ["[/home.arpa/]\($router)", "https://dns10.quad9.net/dns-query"], local_ptr_upstreams: [$router]}'
+}
+# the web server restarts after the install
+for _ in {1..15}; do
+  if dns_config | k exec -i adguard-home-0 -- sh -c 'IFS= read -r auth; exec wget -qO /dev/null --header="Authorization: Basic $auth" --header=Content-Type:application/json --post-file=/dev/stdin http://127.0.0.1:3000/control/dns_config' 2>/dev/null; then
+    echo "cluster:adguard-setup: done"
+    exit 0
+  fi
+  sleep 2
+done
+echo "cluster:adguard-setup: admin is created, but home.arpa is not sent to the router; set it in the web UI" >&2
+exit 1
+EOF
 '''
 
 [tasks."cluster:token"]

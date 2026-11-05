@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adguardhome-sync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adguardhome-sync
+  template:
+    metadata:
+      labels:
+        app: adguardhome-sync
+    spec:
+      automountServiceAccountToken: false
+      # pi01 already runs the control plane and MikoPBX
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: node-role.kubernetes.io/control-plane
+                    operator: DoesNotExist
+      containers:
+        - name: adguardhome-sync
+          image: "{{ .Values.sync.image.repository }}:{{ .Values.sync.image.tag }}"
+          imagePullPolicy: {{ .Values.sync.image.pullPolicy }}
+          # without the image's --config, everything comes from the environment
+          args:
+            - run
+          env:
+            - name: CRON
+              value: {{ .Values.sync.cron | quote }}
+            - name: API_PORT
+              value: "8080"
+            - name: ORIGIN_URL
+              value: http://adguard-home-origin:3000
+            - name: REPLICA1_URL
+              value: http://adguard-home-1.adguard-home:3000
+            - name: REPLICA1_AUTO_SETUP
+              value: "true"
+            {{- range list "API" "ORIGIN" "REPLICA1" }}
+            - name: {{ . }}_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: adguard-home-credentials
+                  key: username
+            - name: {{ . }}_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: adguard-home-credentials
+                  key: password
+            {{- end }}
+          ports:
+            - name: api
+              containerPort: 8080
+          # not ready while the origin or the replica is out of sync
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: api
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: api

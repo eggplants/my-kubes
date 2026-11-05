@@ -1,0 +1,76 @@
+# adguard-home-0 is the origin, set up by `mise run cluster:adguard-setup`.
+# adguard-home-1 is the replica, which adguardhome-sync sets up and overwrites.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: adguard-home
+spec:
+  replicas: 2
+  serviceName: adguard-home
+  selector:
+    matchLabels:
+      app: adguard-home
+  template:
+    metadata:
+      labels:
+        app: adguard-home
+    spec:
+      automountServiceAccountToken: false
+      # The shared hostPort keeps the two pods on separate nodes, and their local-path volumes then keep each on its node.
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      {{- toYaml .Values.nodes | nindent 22 }}
+      containers:
+        - name: adguard-home
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            # hostPort rather than ServiceLB, which would hide the clients' addresses and put them all under one rate limit
+            - name: dns-udp
+              containerPort: 53
+              hostPort: 53
+              protocol: UDP
+            - name: dns-tcp
+              containerPort: 53
+              hostPort: 53
+              protocol: TCP
+            # adguardhome-sync's setup of the replica always picks 3000, the port of the first-run wizard too
+            - name: web
+              containerPort: 3000
+          # not DNS: it does not listen until the instance has been set up
+          readinessProbe:
+            tcpSocket:
+              port: web
+          livenessProbe:
+            tcpSocket:
+              port: web
+          volumeMounts:
+            - name: conf
+              mountPath: /opt/adguardhome/conf
+            - name: work
+              mountPath: /opt/adguardhome/work
+  # The StatefulSet controller, not Argo CD, owns these PVCs. They outlive the StatefulSet, and the PV's reclaim policy
+  # is Delete: deleting one loses that instance's data.
+  volumeClaimTemplates:
+    - metadata:
+        name: conf
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.storage.conf.size }}
+    - metadata:
+        name: work
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.storage.work.size }}

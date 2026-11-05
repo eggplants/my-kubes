@@ -9,6 +9,7 @@
 
 - MikoPBX: <https://pbx.home.arpa>
 - ArgoCD: <https://pi01.home.arpa>
+- AdGuard Home: <https://adguard.home.arpa> (DNS: 192.168.100.4, 192.168.100.5)
 
 ## Apply
 

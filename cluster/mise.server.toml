@@ -59,6 +59,12 @@ owner = "root"
 group = "root"
 mode = "0600"
 
+[bootstrap.files."/var/lib/rancher/k3s/server/manifests/argocd-adguard-home.yaml"]
+source = "./manifests/argocd-adguard-home.yaml"
+owner = "root"
+group = "root"
+mode = "0600"
+
 [tasks.bootstrap]
 description = "Install k3s as the server, then sync MikoPBX's dialplan applications from dialplan/"
 run = ["bash k3s.sh", "bash dialplan.sh"]
