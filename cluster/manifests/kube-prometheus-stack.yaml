@@ -63,6 +63,38 @@ spec:
           memory: 384Mi
         limits:
           memory: 1Gi
+      # the chart's default has -k, which would take these dashboards without checking grafana.com's certificate
+      defaultCurlOptions: -sf
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: grafana-com
+              folder: grafana.com
+              type: file
+              options:
+                path: /var/lib/grafana/dashboards/grafana-com
+      # downloaded each time the pod starts, so it stays in Init while grafana.com is out of reach
+      dashboards:
+        grafana-com:
+          k8s-views-nodes-list:
+            gnetId: 22153
+            revision: 3
+            datasource:
+              - name: "DS_INFRASTRUCTURE_& PLATFORM METRICS"
+                value: prometheus
+          k8s-views-global:
+            gnetId: 15757
+            revision: 43
+          k8s-views-namespaces:
+            gnetId: 15758
+            revision: 46
+          k8s-views-nodes:
+            gnetId: 15759
+            revision: 40
+          k8s-views-pods:
+            gnetId: 15760
+            revision: 41
       grafana.ini:
         server:
           root_url: https://grafana.home.arpa
