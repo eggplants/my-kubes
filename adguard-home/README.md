@@ -24,16 +24,36 @@ mise run cluster:adguard-setup
 
 It asks for a password, creates the origin's `admin`, stores the credentials in a Secret, and sends `home.arpa` and reverse lookups of the LAN to the router. `adguardhome-sync` then sets up the replica by itself.
 
-Finally, on the router:
-
-1. Add a static DNS name, `adguard.home.arpa`, pointing to a node.
-2. Make DHCP hand out `192.168.100.4` and `192.168.100.5` as the DNS servers.
-
-Check that both instances answer before you change DHCP:
+Check that both instances answer:
 
 ```sh
 dig @192.168.100.4 pbx.home.arpa
 dig @192.168.100.5 example.com
+```
+
+Then, on the RTX830, as `administrator`:
+
+```
+dns static a adguard.home.arpa 192.168.100.4
+dhcp scope option 1 dns=192.168.100.4,192.168.100.5
+ipv6 lan1 rtadv send 1 o_flag=off
+no ipv6 lan1 dhcp service
+save
+```
+
+The last two lines stop handing out the router as an IPv6 DNS server, which clients could use to bypass AdGuard Home, as it only listens on IPv4. Clients still get IPv6 addresses from router advertisements.
+
+Clients switch when they renew their DHCP lease, which lasts 72 hours, or when they reconnect.
+
+If a new name was looked up before it was added to the router, the router and AdGuard Home answer `NXDOMAIN` from their caches for up to 3 hours. Run `clear dns cache` on the router first, then press "Clear cache" under DNS settings on both instances.
+
+To go back:
+
+```
+no dhcp scope option 1
+ipv6 lan1 rtadv send 1 o_flag=on
+ipv6 lan1 dhcp service server
+save
 ```
 
 ## Upgrade
