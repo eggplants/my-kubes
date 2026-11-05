@@ -10,6 +10,7 @@
 - MikoPBX: <https://pbx.home.arpa>
 - ArgoCD: <https://pi01.home.arpa>
 - AdGuard Home: <https://adguard.home.arpa> (DNS: 192.168.100.4, 192.168.100.5)
+- Grafana: <https://grafana.home.arpa>
 
 ## Apply
 
@@ -56,6 +57,26 @@ mise run cluster:argocd-password
 ```
 
 Then, log in as `admin` at <https://pi01.home.arpa> and change the password.
+
+## Monitoring
+
+[kube-prometheus-stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) runs Prometheus and Grafana on pi04, with dashboards for the nodes, pods and API server. Prometheus keeps 15 days of metrics, up to 8 GiB.
+
+At first, add a static DNS name, `grafana.home.arpa`, on the router pointing to a node, then:
+
+```bash
+mise run cluster:grafana-password
+```
+
+Then, log in as `admin` at <https://grafana.home.arpa> and change the password.
+
+Prometheus has no login, so it has no Ingress. To see its targets and alerts at <http://localhost:9090>:
+
+```bash
+kubectl -n monitoring port-forward svc/prometheus-operated 9090
+```
+
+To upgrade, change `version` in `cluster/manifests/kube-prometheus-stack.yaml`, then run `mise bootstrap remote pi01`. Helm leaves CRDs as they are, so a new major version may need them applied by hand first: see the chart's [upgrade notes](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack#upgrading-chart).
 
 ## MikoPBX dialplan applications
 
