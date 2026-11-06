@@ -1,0 +1,4 @@
+[global]
+# READMEs keep each paragraph on one line
+disable = ["MD013"]
+exclude = [".claude/skills"]

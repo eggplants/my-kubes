@@ -4,6 +4,10 @@
 #   mise bootstrap remote --all --dry-run
 #   mise bootstrap remote --all
 
+[tools]
+rumdl = "latest"
+tombi = "latest"
+
 [vars]
 # Names come from RTX830 static DNS (home.arpa), not mDNS: the MikoPBX firewall on pi01 drops mDNS
 server = "eggplants@pi01.home.arpa"
@@ -36,6 +40,44 @@ host = "pi04.home.arpa"
 user = "eggplants"
 tags = ["agent"]
 mise_env = ["agent"]
+
+[tasks.fmt]
+description = "Format Markdown, mise configs and TOML"
+depends = ["fmt:*"]
+
+[tasks."fmt:md"]
+description = "Format Markdown with rumdl"
+run = "rumdl fmt ."
+
+[tasks."fmt:mise"]
+description = "Format mise configs with mise fmt"
+run = ["mise fmt", "mise fmt -C cluster -E server,agent"]
+
+[tasks."fmt:toml"]
+description = "Format TOML with tombi"
+# both rewrite the mise configs, so they must not run at the same time
+depends = ["fmt:mise"]
+run = "tombi format"
+
+[tasks.lint]
+description = "Lint Markdown, mise configs and TOML"
+depends = ["lint:*"]
+
+[tasks."lint:md"]
+description = "Lint Markdown with rumdl"
+run = "rumdl check ."
+
+[tasks."lint:mise"]
+description = "Check mise configs' formatting with mise fmt"
+run = ["mise fmt --check", "mise fmt --check -C cluster -E server,agent"]
+
+[tasks."lint:toml"]
+description = "Check TOML formatting and lint against the mise schema with tombi"
+run = ["tombi format --check", "tombi lint --error-on-warnings"]
+
+[tasks.pre-commit]
+description = "Run before every commit (git hook)"
+depends = ["lint"]
 
 [tasks."cluster:status"]
 description = "Show the cluster's nodes"

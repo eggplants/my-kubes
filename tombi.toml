@@ -1,0 +1,6 @@
+toml-version = "v1.0.0"
+
+# The catalog's mise patterns do not match cluster/mise.<env>.toml by name.
+[[schemas]]
+path = "https://mise.jdx.dev/schema/mise.json"
+include = ["cluster/mise.*.toml"]
