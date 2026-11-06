@@ -21,7 +21,7 @@ mise bootstrap remote --all
 mise run cluster:status
 ```
 
-```
+```bash
 # one host
 mise bootstrap remote pi02
 ```
@@ -39,7 +39,7 @@ mise bootstrap remote pi02
 
 ## Upgrade k3s
 
-The patch version is automatically updated with [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) and [k3s-upgrade](https://github.com/k3s-io/k3s-upgrade) on Sundays from 03:00 to 05:00 JST. 
+The patch version is automatically updated with [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller) and [k3s-upgrade](https://github.com/k3s-io/k3s-upgrade) on Sundays from 03:00 to 05:00 JST.
 
 To move to the next minor, change the channel in `cluster/manifests/system-upgrade-plans.yaml` and `K3S_VERSION` in `cluster/mise.toml`, then:
 
@@ -50,6 +50,7 @@ mise bootstrap remote pi01
 ## Argo CD
 
 At first:
+
 ```bash
 mise run cluster:ca > home-ca.crt
 mise run cluster:discord-webhook

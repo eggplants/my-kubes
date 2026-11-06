@@ -33,7 +33,7 @@ dig @192.168.100.5 example.com
 
 Then, on the RTX830, as `administrator`:
 
-```
+```text
 dns static a adguard.home.arpa 192.168.100.4
 dhcp scope option 1 dns=192.168.100.4,192.168.100.5
 ipv6 lan1 rtadv send 1 o_flag=off
@@ -49,7 +49,7 @@ If a new name was looked up before it was added to the router, the router and Ad
 
 To go back:
 
-```
+```text
 no dhcp scope option 1
 ipv6 lan1 rtadv send 1 o_flag=on
 ipv6 lan1 dhcp service server

@@ -11,12 +11,6 @@ content = """
 flannel-iface: eth0
 """
 
-# k3s applies whatever is in this directory. These run before k3s.sh, so a new server needs the directory made here.
-[bootstrap.directories."/var/lib/rancher/k3s/server/manifests"]
-owner = "root"
-group = "root"
-mode = "0700"
-
 [bootstrap.files."/var/lib/rancher/k3s/server/manifests/system-upgrade-controller.yaml"]
 source = "./manifests/system-upgrade-controller.yaml"
 owner = "root"
@@ -70,6 +64,12 @@ source = "./manifests/kube-prometheus-stack.yaml"
 owner = "root"
 group = "root"
 mode = "0600"
+
+# k3s applies whatever is in this directory. These run before k3s.sh, so a new server needs the directory made here.
+[bootstrap.directories."/var/lib/rancher/k3s/server/manifests"]
+owner = "root"
+group = "root"
+mode = "0700"
 
 [tasks.bootstrap]
 description = "Install k3s as the server, then sync MikoPBX's dialplan applications from dialplan/"
