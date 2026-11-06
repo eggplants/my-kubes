@@ -1,0 +1,28 @@
+# yaml-language-server: $schema=https://www.schemastore.org/dependabot-2.0.json
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # Image tags in the charts' values.yaml and in plain manifests.
+  # Not covered: `version` in k3s HelmChart manifests (cert-manager, argo-cd, kube-prometheus-stack).
+  - package-ecosystem: docker
+    directories:
+      - /adguard-home
+      - /mikopbx
+      - /cluster/manifests
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    groups:
+      docker:
+        patterns: ["*"]
